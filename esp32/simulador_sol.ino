@@ -1,21 +1,17 @@
 #include <WiFi.h>
+#include <PubSubClient.h>
 
 // ======== Wi-Fi ========
 const char* ssid     = "iPhone de Maria Fernanda";
 const char* password = "bubaloo123";
 
-String get_wifi_status(int status) {
-  switch (status) {
-    case WL_IDLE_STATUS:     return "WL_IDLE_STATUS";
-    case WL_SCAN_COMPLETED:  return "WL_SCAN_COMPLETED";
-    case WL_NO_SSID_AVAIL:   return "WL_NO_SSID_AVAIL";
-    case WL_CONNECT_FAILED:  return "WL_CONNECT_FAILED";
-    case WL_CONNECTION_LOST: return "WL_CONNECTION_LOST";
-    case WL_CONNECTED:       return "WL_CONNECTED";
-    case WL_DISCONNECTED:    return "WL_DISCONNECTED";
-    default:                 return "UNKNOWN_STATUS";
-  }
-}
+// ======== MQTT (broker de teste público) ========
+const char* mqtt_server = "test.mosquitto.org";   // depois você trocar pelo IP da rasp
+const int   mqtt_port   = 1883;
+const char* mqtt_topic  = "solar/metrics"; // só escolher " qualquer " nome
+
+WiFiClient espClient;
+PubSubClient mqttClient(espClient);
 
 // ======== Pinos dos potenciômetros ========
 const int PIN_IRR   = 34; // Irradiação (W/m²)
@@ -52,6 +48,56 @@ int readADC(int pin) {
   return (int)(acc / SMOOTH_N);
 }
 
+void connectWifi() {
+  Serial.println();
+  Serial.print("Conectando ao Wi-Fi: ");
+  Serial.println(ssid);
+
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+
+  int tentativas = 0;
+  const int TENTATIVAS_MAX = 20;
+
+  while (WiFi.status() != WL_CONNECTED && tentativas < TENTATIVAS_MAX) {
+    delay(500);
+    Serial.print(".");
+    tentativas++;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\n✅ Conectado ao Wi-Fi!");
+    Serial.print("IP da ESP32: ");
+    Serial.println(WiFi.localIP());
+  } else {
+    Serial.println("\n❌ Falha ao conectar no Wi-Fi.");
+    Serial.println("Verifique SSID, senha e tipo de rede (2.4 GHz).");
+  }
+}
+
+void connectMQTT() {
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("⚠ Wi-Fi não conectado, não dá pra conectar no MQTT.");
+    return;
+  }
+
+  while (!mqttClient.connected()) {
+    Serial.print("Conectando ao broker MQTT... ");
+    // clientId aleatório pra evitar conflito
+    String clientId = "ESP32Solar-" + String(random(0xffff), HEX);
+
+    if (mqttClient.connect(clientId.c_str())) {
+      Serial.println("conectado!");
+      // se precisasse assinar tópico, seria aqui (mqttClient.subscribe(...))
+    } else {
+      Serial.print("falha, rc=");
+      Serial.print(mqttClient.state());
+      Serial.println(" tentando de novo em 2s...");
+      delay(2000);
+    }
+  }
+}
+
 // ======== Setup ========
 void setup() {
   Serial.begin(115200);
@@ -64,36 +110,15 @@ void setup() {
   pinMode(PIN_AREA, INPUT);
   pinMode(PIN_COST, INPUT);
 
-  // Conexão Wi-Fi
-  Serial.println();
-  Serial.print("Conectando ao Wi-Fi: ");
-  Serial.println(ssid);
+  // Wi-Fi
+  connectWifi();
 
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
+  // MQTT
+  mqttClient.setServer(mqtt_server, mqtt_port);
+  randomSeed(micros());  // pra gerar clientId aleatório
 
-  int status = WiFi.status();
-  Serial.print("Status inicial: ");
-  Serial.println(get_wifi_status(status));
-
-  int tentativas = 0;
-  const int TENTATIVAS_MAX = 20;
-
-  while (status != WL_CONNECTED && tentativas < TENTATIVAS_MAX) {
-    delay(500);
-    status = WiFi.status();
-    Serial.print("Status: ");
-    Serial.println(get_wifi_status(status));
-    tentativas++;
-  }
-
-  if (status == WL_CONNECTED) {
-    Serial.println("\n✅ Conectado ao Wi-Fi!");
-    Serial.print("IP da ESP32: ");
-    Serial.println(WiFi.localIP());
-  } else {
-    Serial.println("\n❌ Falha ao conectar no Wi-Fi.");
-    Serial.println("Verifique SSID, senha e tipo de rede (2.4 GHz).");
+  if (WiFi.status() == WL_CONNECTED) {
+    connectMQTT();
   }
 
   Serial.println("\n{\"status\":\"boot\",\"msg\":\"ESP32 Solar Sim iniciado\"}");
@@ -101,6 +126,12 @@ void setup() {
 
 // ======== Loop principal ========
 void loop() {
+  // mantém conexão MQTT viva
+  if (WiFi.status() == WL_CONNECTED && !mqttClient.connected()) {
+    connectMQTT();
+  }
+  mqttClient.loop();
+
   // Leituras brutas
   int rawIrr  = readADC(PIN_IRR);
   int rawEff  = readADC(PIN_EFF);
@@ -117,15 +148,32 @@ void loop() {
   float effDec = effPct / 100.0;
   float powerW = irrWm2 * areaM2 * effDec;
 
-  // Saída organizada
+  // ===== Saída organizada no Serial =====
   Serial.println("\n================== MÉTRICAS DO PAINEL SOLAR ==================");
   Serial.print("Irradiação:       "); Serial.print(irrWm2, 1);  Serial.println(" W/m²");
   Serial.print("Eficiência:       "); Serial.print(effPct, 1);  Serial.println(" %");
   Serial.print("Área do Painel:   "); Serial.print(areaM2, 2);  Serial.println(" m²");
   Serial.print("Custo (estimado): R$ "); Serial.print(costBRL, 2); Serial.println();
   Serial.print("Potência Gerada:  "); Serial.print(powerW, 1); Serial.println(" W");
-
   Serial.println("--------------------------------------------------------------");
+
+  // ===== Envio via MQTT em JSON =====
+  if (mqttClient.connected()) {
+    char payload[256];
+    snprintf(
+      payload,
+      sizeof(payload),
+      "{\"irr_wm2\":%.1f,\"eff_pct\":%.1f,\"area_m2\":%.2f,"
+      "\"cost_brl\":%.2f,\"power_w\":%.1f}",
+      irrWm2, effPct, areaM2, costBRL, powerW
+    );
+
+    bool ok = mqttClient.publish(mqtt_topic, payload);
+    Serial.print("MQTT publish: ");
+    Serial.println(ok ? "OK" : "ERRO");
+  } else {
+    Serial.println("⚠ Não conectado ao MQTT, não foi possível publicar.");
+  }
 
   delay(2000); // atualiza a cada 2s
 }
