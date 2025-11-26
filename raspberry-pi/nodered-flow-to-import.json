@@ -1,0 +1,84 @@
+[
+    {
+        "id": "mqtt_in_solar",
+        "type": "mqtt in",
+        "z": "flow_solar",
+        "name": "MQTT Solar Metrics",
+        "topic": "solar/metrics",
+        "qos": "0",
+        "datatype": "auto",
+        "broker": "mqtt_broker_rasp",
+        "nl": false,
+        "rap": false,
+        "rh": 0,
+        "x": 150,
+        "y": 160,
+        "wires": [
+            [
+                "json_parser_solar"
+            ]
+        ]
+    },
+    {
+        "id": "json_parser_solar",
+        "type": "json",
+        "z": "flow_solar",
+        "name": "JSON Parser",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 360,
+        "y": 160,
+        "wires": [
+            [
+                "influx_out_solar"
+            ]
+        ]
+    },
+    {
+        "id": "influx_out_solar",
+        "type": "influxdb out",
+        "z": "flow_solar",
+        "influxdb": "influx_local_pc",
+        "name": "InfluxDB Solar",
+        "measurement": "solar_metrics",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "telegraf",
+        "x": 580,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "mqtt_broker_rasp",
+        "type": "mqtt-broker",
+        "name": "Raspberry MQTT",
+        "broker": "10.213.91.245",
+        "port": "1883",
+        "clientid": "node-red-solar",
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "compatmode": false,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "influx_local_pc",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "telegraf",
+        "name": "Influx Local PC",
+        "usetls": false
+    }
+]
+
