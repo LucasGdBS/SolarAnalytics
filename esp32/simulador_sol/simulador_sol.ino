@@ -2,11 +2,11 @@
 #include <PubSubClient.h>
 
 // ======== Wi-Fi ========
-const char* ssid     = "iPhone de Maria Fernanda";
-const char* password = "bubaloo123";
+const char* ssid     = "outra_dimensao";
+const char* password = "kika1234";
 
 // ======== MQTT (broker de teste público) ========
-const char* mqtt_server = "test.mosquitto.org";   // depois você trocar pelo IP da rasp
+const char* mqtt_server = "10.213.91.245";   // depois você trocar pelo IP da rasp
 const int   mqtt_port   = 1883;
 const char* mqtt_topic  = "solar/metrics"; // só escolher " qualquer " nome
 
