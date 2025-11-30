@@ -7,7 +7,7 @@ SolarAnalytics é um sistema IoT criado para monitorar dados de geração solar 
 ## Como funciona?
 A ESP32 coleta informações simuladas como irradiância e potência, envia tudo via Wi-Fi para a Raspberry Pi usando MQTT, e o computador processa esses dados no Node-RED, armazena no InfluxDB e exibe gráficos no Grafana.
 
-📡 ESP32 → 🍓 Raspberry Pi → 🛢️ InfluxDB → 🟥🔧 Node-RED → 📈 Grafana
+📡 ESP32 → 🍓 Raspberry Pi →  🔴 Node-RED → 🛢️ InfluxDB →  📈 Grafana
 
 
 ## Estrutura e Responsabilidades de cada Módulo
