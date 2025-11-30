@@ -1,6 +1,6 @@
 # Raspberry Pi
 
-## Configuração do Broker MQTT
+## 📡 Configuração do Broker MQTT
 
 Para o broker MQTT, utilizamos o Mosquitto, que pode ser instalado no Raspberry Pi com o seguinte comando:
 
@@ -81,7 +81,7 @@ mosquitto_pub -h <IP_DO_RASPBERRY_PI> -t test/topic -m "Hello from another devic
 ```
 # Comunicar ESP32 com Raspberry Pi
 
-## Conectar ESP32 e Raspberry Pi na mesma Wifi 2.4 Gz.
+##🌐 Conectar ESP32 e Raspberry Pi na mesma Wifi 2.4 Gz.
 
 Para garantir comunicação estável entre os controladores ESP32, a Raspberry Pi (broker MQTT) e o computador responsável pelo dashboard, todo o sistema deve operar na mesma rede Wi-Fi de 2.4 GHz. Caso a rede tenha acentos, espaços a Raspberry Pi pode ter dificuldade de ler
 
@@ -133,6 +133,105 @@ Para confirmar que o computador está recebendo corretamente os dados enviados p
 ```bash
 mosquitto_sub -h 10.213.91.245 -t solar/metrics -v
 ```
+Se estiver funcionando, o terminal do PC mostrará algo assim:
 
+```bash
+solar/metrics {"irr_wm2":512.3,"eff_pct":17.4,"area_m2":1.58,"cost_brl":2480.10,"power_w":1415.2}
+solar/metrics {"irr_wm2":498.7,"eff_pct":16.9,"area_m2":1.58,"cost_brl":2480.10,"power_w":1382.4}
+solar/metrics {"irr_wm2":530.1,"eff_pct":17.6,"area_m2":1.58,"cost_brl":2480.10,"power_w":1436.8}
+```
 
+#🛢️ Instalação e configuração o InfluxDB no PC
 
+Adotamos o InfluxDB como banco de dados porque ele é otimizado para séries temporais, permitindo armazenar medições sucessivas e ele se integra de forma nativa com o Grafana, o que simplifica a visualização posterior.
+
+##Instalar o InfluxDB
+
+Faça a instalação de acordo com seu sistema operacional 
+
+Para verificar se o InfluxDB está átivo 
+
+```bash
+systemctl status influxdb
+```
+
+Abrir o cliente do InfluxDB
+```bash
+influx
+```
+
+Listar todos os bancos de dados existentes
+```bash
+show databases
+```
+Selecionar o banco de dados onde o Node-RED está gravando (o nosso é telegraf)
+
+```bash
+use telegraf
+```
+Listar as measurements dentro desse banco e consultar dados salvos 
+```bash
+show measurements
+select * from solar_metrics limit 10
+```
+
+#🔴 Instalação e configuração do Node-Red
+
+Node-RED é uma ferramenta de integração visual que permite criar fluxos de processamento conectando blocos prontos, chamados de nós. Ele roda normalmente no navegador e facilita a comunicação entre dispositivos, serviços e bancos de dados sem precisar escrever código extenso. No contexto do projeto, ele funciona como a ponte que recebe as mensagens MQTT da Raspberry, transforma os dados e envia tudo automaticamente para o InfluxDB.
+
+##Instalar o Node-Red
+
+Faça a instalação de acordo com seu sistema operacional 
+
+Iniciar o Node-RED 
+```bash
+node-red
+```
+Com o serviço rodando, abra no navegador:
+```bash
+http://127.0.0.1:1880
+```
+Clique em importar e importe o json nodered-flow-to-import.json. 
+
+O fluxo aparece imediatamente no workspace e depois finaliza clicando em “Deploy” para aplicar as configurações.
+
+Quando o status aparecer connected deu tudo certo. 
+
+# Instalação e configuração do Grafana
+
+##Instalar o Grafana
+
+Faça a instalação de acordo com seu sistema operacional 
+
+Iniciar o serviço
+
+```bash
+sudo systemctl start grafana-server
+```
+
+Verificar se o Grafana está ativo
+
+```bash
+systemctl status grafana-server
+```
+
+Acessar o grafana no navegador
+
+```bash
+http://localhost:3000
+```
+
+Login padrão:
+
+```bash
+usuário: admin
+senha: admin
+```
+No menu lateral, acessamos a opção Data Sources e escolhemos o InfluxDB como tipo de conexão. Informamos o endereço do banco, que no nosso caso está rodando localmente em:
+```bash
+http://127.0.0.1:8086
+```
+
+Em seguida, selecionamos o banco de dados utilizado pelo Node-RED, como por exemplo telegraf. Como o InfluxDB está trabalhando na versão clássica (v1.x), basta escolher o modo correto no campo Query Language. Depois de preencher todos os parâmetros, clicamos em Save & Test para verificar a conexão.
+
+Se conectou, vc está pronto para criar as visualizações em tempo real no Grafana
