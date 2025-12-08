@@ -1,0 +1,95 @@
+{
+  "id": 1,
+  "type": "stat",
+  "title": "Métricas",
+  "gridPos": {
+    "x": 0,
+    "y": 0,
+    "h": 3,
+    "w": 12
+  },
+  "fieldConfig": {
+    "defaults": {
+      "mappings": [],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "green",
+            "value": null
+          },
+          {
+            "color": "red",
+            "value": 80
+          }
+        ]
+      },
+      "color": {
+        "mode": "thresholds"
+      }
+    },
+    "overrides": []
+  },
+  "transformations": [
+    {
+      "id": "organize",
+      "options": {
+        "excludeByName": {
+          "Time": true
+        },
+        "includeByName": {},
+        "indexByName": {
+          "Time": 0,
+          "area_m2": 1,
+          "cost_brl": 2,
+          "eff_pct": 3,
+          "irr_wm2": 4,
+          "power_w": 5
+        },
+        "renameByName": {
+          "Time": "",
+          "area_m2": "Área (m²)",
+          "cost_brl": "Custo (R$)",
+          "eff_pct": "Eficiência (%)",
+          "irr_wm2": "Irradiação (w/m²)",
+          "power_w": "Energia Gerada(w)"
+        }
+      }
+    }
+  ],
+  "pluginVersion": "12.1.1",
+  "targets": [
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "bf58mcl8wpa80d"
+      },
+      "hide": false,
+      "query": "SELECT * FROM \"solar_metrics\"",
+      "rawQuery": true,
+      "refId": "B",
+      "resultFormat": "table"
+    }
+  ],
+  "datasource": {
+    "type": "influxdb",
+    "uid": "bf58mcl8wpa80d"
+  },
+  "options": {
+    "reduceOptions": {
+      "values": false,
+      "calcs": [
+        "lastNotNull"
+      ],
+      "fields": ""
+    },
+    "orientation": "auto",
+    "textMode": "auto",
+    "wideLayout": true,
+    "colorMode": "none",
+    "graphMode": "none",
+    "justifyMode": "center",
+    "showPercentChange": false,
+    "percentChangeColorMode": "standard"
+  }
+}
