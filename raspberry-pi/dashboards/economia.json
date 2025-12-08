@@ -1,0 +1,85 @@
+{
+  "id": 6,
+  "type": "stat",
+  "title": "Economia ",
+  "gridPos": {
+    "x": 12,
+    "y": 0,
+    "h": 3,
+    "w": 5
+  },
+  "fieldConfig": {
+    "defaults": {
+      "mappings": [],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "semi-dark-green",
+            "value": null
+          }
+        ]
+      },
+      "color": {
+        "mode": "thresholds"
+      },
+      "decimals": 2,
+      "unit": "currencyBRL"
+    },
+    "overrides": []
+  },
+  "pluginVersion": "12.1.1",
+  "targets": [
+    {
+      "columns": [],
+      "computed_columns": [
+        {
+          "selector": "(power_w / 1000) * 0.80",
+          "text": "Economia",
+          "type": "string"
+        }
+      ],
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "bf58q0foadgqoa"
+      },
+      "filters": [],
+      "format": "table",
+      "global_query_id": "",
+      "parser": "backend",
+      "query": "\nSELECT \"power_w\" / 1000 * 0.80 FROM \"solar_metrics\"\n",
+      "rawQuery": true,
+      "refId": "A",
+      "resultFormat": "table",
+      "root_selector": "",
+      "source": "url",
+      "type": "json",
+      "url": "https://mocsolarpanels.up.railway.app/metrics",
+      "url_options": {
+        "data": "",
+        "method": "GET"
+      }
+    }
+  ],
+  "datasource": {
+    "type": "influxdb",
+    "uid": "bf58mcl8wpa80d"
+  },
+  "options": {
+    "reduceOptions": {
+      "values": false,
+      "calcs": [
+        "sum"
+      ],
+      "fields": "/^power_w$/"
+    },
+    "orientation": "auto",
+    "textMode": "auto",
+    "wideLayout": true,
+    "colorMode": "value",
+    "graphMode": "none",
+    "justifyMode": "auto",
+    "showPercentChange": false,
+    "percentChangeColorMode": "standard"
+  }
+}
