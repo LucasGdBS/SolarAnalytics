@@ -1,0 +1,289 @@
+{
+  "id": 5,
+  "type": "timeseries",
+  "title": "Gap View",
+  "gridPos": {
+    "x": 12,
+    "y": 11,
+    "h": 8,
+    "w": 12
+  },
+  "fieldConfig": {
+    "defaults": {
+      "custom": {
+        "drawStyle": "line",
+        "lineInterpolation": "linear",
+        "barAlignment": 0,
+        "barWidthFactor": 0.6,
+        "lineWidth": 1,
+        "fillOpacity": 0,
+        "gradientMode": "none",
+        "spanNulls": false,
+        "insertNulls": false,
+        "showPoints": "always",
+        "pointSize": 5,
+        "stacking": {
+          "mode": "normal",
+          "group": "A"
+        },
+        "axisPlacement": "auto",
+        "axisLabel": "",
+        "axisColorMode": "text",
+        "axisBorderShow": false,
+        "scaleDistribution": {
+          "type": "linear"
+        },
+        "axisCenteredZero": false,
+        "hideFrom": {
+          "tooltip": false,
+          "viz": false,
+          "legend": false
+        },
+        "thresholdsStyle": {
+          "mode": "off"
+        }
+      },
+      "color": {
+        "mode": "palette-classic-by-name"
+      },
+      "mappings": [],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "green",
+            "value": null
+          }
+        ]
+      }
+    },
+    "overrides": []
+  },
+  "transformations": [
+    {
+      "id": "calculateField",
+      "options": {
+        "alias": "temp_calc",
+        "binary": {
+          "left": {
+            "matcher": {
+              "id": "byName",
+              "options": "mean"
+            }
+          },
+          "operator": "*",
+          "right": {
+            "matcher": {
+              "id": "byName",
+              "options": "mean_3"
+            }
+          }
+        },
+        "mode": "binary",
+        "reduce": {
+          "reducer": "sum"
+        }
+      }
+    },
+    {
+      "id": "calculateField",
+      "options": {
+        "alias": "temp_calc2",
+        "binary": {
+          "left": {
+            "matcher": {
+              "id": "byName",
+              "options": "temp_calc"
+            }
+          },
+          "operator": "*",
+          "right": {
+            "matcher": {
+              "id": "byName",
+              "options": "mean_1"
+            }
+          }
+        },
+        "mode": "binary",
+        "reduce": {
+          "reducer": "sum"
+        }
+      }
+    },
+    {
+      "id": "calculateField",
+      "options": {
+        "alias": "Energia Possível",
+        "binary": {
+          "left": {
+            "matcher": {
+              "id": "byName",
+              "options": "temp_calc2"
+            }
+          },
+          "operator": "/",
+          "right": {
+            "fixed": "100"
+          }
+        },
+        "mode": "binary",
+        "reduce": {
+          "reducer": "sum"
+        }
+      }
+    },
+    {
+      "id": "organize",
+      "options": {
+        "excludeByName": {
+          "Eficiência": true,
+          "Energia Possível": false,
+          "Irradiação": true,
+          "mean": true,
+          "mean_1": true,
+          "mean_3": true,
+          "temp_calc": true,
+          "temp_calc2": true,
+          "Área": true
+        },
+        "includeByName": {},
+        "indexByName": {},
+        "renameByName": {
+          "mean_2": "Energia Gerada"
+        }
+      }
+    }
+  ],
+  "pluginVersion": "12.1.1",
+  "targets": [
+    {
+      "columns": [
+        {
+          "selector": "irr_wm2",
+          "text": "Irradiação",
+          "type": "number"
+        },
+        {
+          "selector": "eff_pct",
+          "text": "Eficiência",
+          "type": "number"
+        },
+        {
+          "selector": "area_m2",
+          "text": "Área",
+          "type": "number"
+        },
+        {
+          "selector": "power_w",
+          "text": "Energia Gerada",
+          "type": "number"
+        },
+        {
+          "selector": "time_now",
+          "text": "TIme",
+          "timestampFormat": "3:04PM",
+          "type": "timestamp"
+        }
+      ],
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "bf58q0foadgqoa"
+      },
+      "filters": [],
+      "format": "table",
+      "global_query_id": "",
+      "groupBy": [
+        {
+          "params": [
+            "10s"
+          ],
+          "type": "time"
+        }
+      ],
+      "measurement": "solar_metrics",
+      "orderByTime": "ASC",
+      "parser": "backend",
+      "policy": "autogen",
+      "query": "SELECT mean(\"value\") FROM \"measurement\" WHERE $timeFilter GROUP BY time($__interval) fill(null)",
+      "rawQuery": false,
+      "refId": "A",
+      "resultFormat": "table",
+      "root_selector": "",
+      "select": [
+        [
+          {
+            "params": [
+              "irr_wm2"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [],
+            "type": "mean"
+          }
+        ],
+        [
+          {
+            "params": [
+              "eff_pct"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [],
+            "type": "mean"
+          }
+        ],
+        [
+          {
+            "params": [
+              "power_w"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [],
+            "type": "mean"
+          }
+        ],
+        [
+          {
+            "params": [
+              "area_m2"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [],
+            "type": "mean"
+          }
+        ]
+      ],
+      "source": "url",
+      "tags": [],
+      "type": "json",
+      "url": "https://mocsolarpanels.up.railway.app/metrics",
+      "url_options": {
+        "data": "",
+        "method": "GET"
+      }
+    }
+  ],
+  "datasource": {
+    "type": "influxdb",
+    "uid": "bf58mcl8wpa80d"
+  },
+  "options": {
+    "tooltip": {
+      "mode": "single",
+      "sort": "none",
+      "hideZeros": false
+    },
+    "legend": {
+      "showLegend": true,
+      "displayMode": "list",
+      "placement": "bottom",
+      "calcs": []
+    }
+  }
+}
