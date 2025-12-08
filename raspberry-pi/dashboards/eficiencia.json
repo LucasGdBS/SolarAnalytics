@@ -1,0 +1,127 @@
+{
+  "id": 4,
+  "type": "barchart",
+  "title": "Eficiência",
+  "gridPos": {
+    "x": 12,
+    "y": 3,
+    "h": 8,
+    "w": 12
+  },
+  "fieldConfig": {
+    "defaults": {
+      "custom": {
+        "lineWidth": 1,
+        "fillOpacity": 80,
+        "gradientMode": "none",
+        "axisPlacement": "auto",
+        "axisLabel": "",
+        "axisColorMode": "text",
+        "axisBorderShow": false,
+        "scaleDistribution": {
+          "type": "linear"
+        },
+        "axisCenteredZero": false,
+        "hideFrom": {
+          "tooltip": false,
+          "viz": false,
+          "legend": false
+        },
+        "thresholdsStyle": {
+          "mode": "off"
+        }
+      },
+      "color": {
+        "mode": "thresholds"
+      },
+      "mappings": [],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "red",
+            "value": null
+          },
+          {
+            "color": "yellow",
+            "value": 15
+          },
+          {
+            "color": "semi-dark-green",
+            "value": 20
+          }
+        ]
+      }
+    },
+    "overrides": []
+  },
+  "pluginVersion": "12.1.1",
+  "targets": [
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "bf58mcl8wpa80d"
+      },
+      "groupBy": [
+        {
+          "params": [
+            "10s"
+          ],
+          "type": "time"
+        }
+      ],
+      "hide": false,
+      "measurement": "solar_metrics",
+      "orderByTime": "ASC",
+      "policy": "autogen",
+      "query": "SELECT mean(\"eff_pct\")\nFROM \"solar_metrics\"\nWHERE $timeFilter\nGROUP BY time($__interval)\n",
+      "rawQuery": false,
+      "refId": "A",
+      "resultFormat": "time_series",
+      "select": [
+        [
+          {
+            "params": [
+              "eff_pct"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [],
+            "type": "mean"
+          }
+        ]
+      ],
+      "tags": []
+    }
+  ],
+  "datasource": {
+    "type": "influxdb",
+    "uid": "bf58mcl8wpa80d"
+  },
+  "options": {
+    "orientation": "vertical",
+    "xTickLabelRotation": 0,
+    "xTickLabelSpacing": 100,
+    "showValue": "never",
+    "stacking": "none",
+    "groupWidth": 0.7,
+    "barWidth": 1,
+    "barRadius": 0.2,
+    "fullHighlight": false,
+    "tooltip": {
+      "mode": "single",
+      "sort": "none",
+      "hideZeros": false
+    },
+    "legend": {
+      "showLegend": false,
+      "displayMode": "list",
+      "placement": "bottom",
+      "calcs": [
+        "lastNotNull"
+      ]
+    },
+    "xField": "Time"
+  }
+}
