@@ -1,0 +1,182 @@
+{
+  "id": 2,
+  "type": "timeseries",
+  "title": "Performance Real vs. Teórica",
+  "gridPos": {
+    "x": 0,
+    "y": 11,
+    "h": 8,
+    "w": 12
+  },
+  "fieldConfig": {
+    "defaults": {
+      "custom": {
+        "drawStyle": "line",
+        "lineInterpolation": "linear",
+        "barAlignment": 0,
+        "barWidthFactor": 0.6,
+        "lineWidth": 1,
+        "fillOpacity": 1,
+        "gradientMode": "none",
+        "spanNulls": true,
+        "insertNulls": false,
+        "showPoints": "always",
+        "pointSize": 5,
+        "stacking": {
+          "mode": "none",
+          "group": "A"
+        },
+        "axisPlacement": "auto",
+        "axisLabel": "",
+        "axisColorMode": "text",
+        "axisBorderShow": false,
+        "scaleDistribution": {
+          "type": "linear"
+        },
+        "axisCenteredZero": false,
+        "hideFrom": {
+          "tooltip": false,
+          "viz": false,
+          "legend": false
+        },
+        "thresholdsStyle": {
+          "mode": "off"
+        }
+      },
+      "color": {
+        "mode": "palette-classic-by-name",
+        "fixedColor": "orange",
+        "seriesBy": "last"
+      },
+      "mappings": [],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "green",
+            "value": null
+          }
+        ]
+      }
+    },
+    "overrides": []
+  },
+  "transformations": [
+    {
+      "id": "organize",
+      "options": {
+        "excludeByName": {},
+        "includeByName": {},
+        "indexByName": {},
+        "renameByName": {
+          "Time": "",
+          "mean": "Irradiação",
+          "mean_1": "Energia Gerada"
+        }
+      }
+    }
+  ],
+  "pluginVersion": "12.1.1",
+  "targets": [
+    {
+      "columns": [
+        {
+          "selector": "time_now",
+          "text": "Time",
+          "timestampFormat": "2006-01-02T15:04:05Z07:00",
+          "type": "timestamp"
+        },
+        {
+          "selector": "irr_wm2",
+          "text": "Irradiação",
+          "type": "number"
+        },
+        {
+          "selector": "power_w",
+          "text": "Energia Gerada",
+          "type": "number"
+        }
+      ],
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "bf58q0foadgqoa"
+      },
+      "filters": [],
+      "format": "table",
+      "global_query_id": "",
+      "groupBy": [
+        {
+          "params": [
+            "10s"
+          ],
+          "type": "time"
+        },
+        {
+          "params": [
+            "null"
+          ],
+          "type": "fill"
+        }
+      ],
+      "measurement": "solar_metrics",
+      "orderByTime": "ASC",
+      "parser": "backend",
+      "policy": "autogen",
+      "refId": "A",
+      "resultFormat": "table",
+      "root_selector": "",
+      "select": [
+        [
+          {
+            "params": [
+              "irr_wm2"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [],
+            "type": "mean"
+          }
+        ],
+        [
+          {
+            "params": [
+              "power_w"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [],
+            "type": "mean"
+          }
+        ]
+      ],
+      "source": "url",
+      "tags": [],
+      "type": "json",
+      "url": "https://mocsolarpanels.up.railway.app/metrics",
+      "url_options": {
+        "data": "",
+        "method": "GET"
+      }
+    }
+  ],
+  "datasource": {
+    "type": "influxdb",
+    "uid": "bf58mcl8wpa80d"
+  },
+  "options": {
+    "tooltip": {
+      "mode": "single",
+      "sort": "none",
+      "hideZeros": false
+    },
+    "legend": {
+      "showLegend": true,
+      "displayMode": "list",
+      "placement": "bottom",
+      "calcs": []
+    }
+  },
+  "timeShift": "1s"
+}
