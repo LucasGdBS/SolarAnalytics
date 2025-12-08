@@ -1,0 +1,189 @@
+{
+  "id": 7,
+  "type": "table",
+  "title": "Log",
+  "gridPos": {
+    "x": 0,
+    "y": 3,
+    "h": 8,
+    "w": 12
+  },
+  "fieldConfig": {
+    "defaults": {
+      "custom": {
+        "align": "auto",
+        "cellOptions": {
+          "type": "auto"
+        },
+        "inspect": false
+      },
+      "mappings": [],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          {
+            "color": "green",
+            "value": null
+          },
+          {
+            "color": "red",
+            "value": 80
+          }
+        ]
+      },
+      "color": {
+        "mode": "thresholds"
+      }
+    },
+    "overrides": []
+  },
+  "transformations": [
+    {
+      "id": "organize",
+      "options": {
+        "excludeByName": {
+          "area_m2": true,
+          "cost_brl": true
+        },
+        "includeByName": {},
+        "indexByName": {
+          "Time": 0,
+          "eff_pct": 1,
+          "irr_wm2": 2,
+          "power_w": 3
+        },
+        "renameByName": {
+          "eff_pct": "Eficiência (%)",
+          "irr_wm2": "Irradiação (w/m²)",
+          "power_w": "Energia Gerada (w)"
+        }
+      }
+    }
+  ],
+  "pluginVersion": "12.1.1",
+  "targets": [
+    {
+      "columns": [
+        {
+          "selector": "eff_pct",
+          "text": "Eficiência (%)",
+          "type": "number"
+        },
+        {
+          "selector": "irr_wm2",
+          "text": "Irradiação (w/m²)",
+          "type": "number"
+        },
+        {
+          "selector": "time_now",
+          "text": "Time",
+          "timestampFormat": "3:04PM",
+          "type": "timestamp"
+        },
+        {
+          "selector": "power_w",
+          "text": "Energia Gerada",
+          "type": "number"
+        }
+      ],
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "bf58q0foadgqoa"
+      },
+      "filters": [],
+      "format": "table",
+      "global_query_id": "",
+      "groupBy": [
+        {
+          "params": [
+            "$__interval"
+          ],
+          "type": "time"
+        },
+        {
+          "params": [
+            "null"
+          ],
+          "type": "fill"
+        }
+      ],
+      "measurement": "solar_metrics",
+      "orderByTime": "ASC",
+      "parser": "backend",
+      "policy": "autogen",
+      "query": "SELECT * from \"solar_metrics\"",
+      "rawQuery": true,
+      "refId": "A",
+      "resultFormat": "table",
+      "root_selector": "",
+      "select": [
+        [
+          {
+            "params": [
+              "eff_pct"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [],
+            "type": "mean"
+          }
+        ],
+        [
+          {
+            "params": [
+              "power_w"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [],
+            "type": "mean"
+          }
+        ],
+        [
+          {
+            "params": [
+              "irr_wm2"
+            ],
+            "type": "field"
+          },
+          {
+            "params": [],
+            "type": "mean"
+          }
+        ]
+      ],
+      "source": "url",
+      "tags": [],
+      "type": "json",
+      "url": "https://mocsolarpanels.up.railway.app/metrics",
+      "url_options": {
+        "data": "",
+        "method": "GET"
+      }
+    }
+  ],
+  "datasource": {
+    "type": "influxdb",
+    "uid": "bf58mcl8wpa80d"
+  },
+  "options": {
+    "showHeader": true,
+    "cellHeight": "sm",
+    "footer": {
+      "show": false,
+      "reducer": [
+        "sum"
+      ],
+      "countRows": false,
+      "fields": ""
+    },
+    "sortBy": [
+      {
+        "desc": true,
+        "displayName": "Time"
+      }
+    ]
+  }
+}
