@@ -90,7 +90,7 @@ Ao conectá-los ao Wi-Fi, cada dispositivo recebe um IP automaticamente via DHCP
 ```bash
 10.213.91.245`
 ```
-##Enviar dados JSON do ESP32 para o tópico MQTT
+## Enviar dados JSON do ESP32 para o tópico MQTT
 
 No código do ESP32, verifique se o nome e a senha da rede Wi-Fi estão exatamente iguais à rede usada pelo computador:
 
@@ -141,11 +141,12 @@ solar/metrics {"irr_wm2":498.7,"eff_pct":16.9,"area_m2":1.58,"cost_brl":2480.10,
 solar/metrics {"irr_wm2":530.1,"eff_pct":17.6,"area_m2":1.58,"cost_brl":2480.10,"power_w":1436.8}
 ```
 
-#🛢️ Instalação e configuração o InfluxDB no PC
+# 🛢️ Instalação e configuração o InfluxDB no PC
 
 Adotamos o InfluxDB como banco de dados porque ele é otimizado para séries temporais, permitindo armazenar medições sucessivas e ele se integra de forma nativa com o Grafana, o que simplifica a visualização posterior.
 
-##Instalar o InfluxDB
+## Instalar o InfluxDB Version 1.6.7 
+
 
 Faça a instalação de acordo com seu sistema operacional 
 
@@ -175,11 +176,11 @@ show measurements
 select * from solar_metrics limit 10
 ```
 
-#🔴 Instalação e configuração do Node-Red
+# 🔴 Instalação e configuração do Node-Red
 
 Node-RED é uma ferramenta de integração visual que permite criar fluxos de processamento conectando blocos prontos, chamados de nós. Ele roda normalmente no navegador e facilita a comunicação entre dispositivos, serviços e bancos de dados sem precisar escrever código extenso. No contexto do projeto, ele funciona como a ponte que recebe as mensagens MQTT da Raspberry, transforma os dados e envia tudo automaticamente para o InfluxDB.
 
-##Instalar o Node-Red
+## Instalar o Node-Red Version 4.1.2
 
 Faça a instalação de acordo com seu sistema operacional 
 
@@ -199,7 +200,7 @@ Quando o status aparecer connected deu tudo certo.
 
 # Instalação e configuração do Grafana
 
-##Instalar o Grafana
+## Instalar o Grafana Version 12.3.0
 
 Faça a instalação de acordo com seu sistema operacional 
 
